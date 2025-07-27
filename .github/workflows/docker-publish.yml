@@ -258,19 +258,27 @@ jobs:
 
           # Iterate through the base tags and create/push manifest for each
           for i in "${!BASE_TAG_ARRAY[@]}"; do
-            BASE_TAG="${BASE_TAG_ARRAY[$i]}"
-            AMD64_IMAGE_WITH_ARCH_TAG="${AMD64_TAG_ARRAY[$i]}"
-            ARM64_IMAGE_WITH_ARCH_TAG="${ARM64_TAG_ARRAY[$i]}"
+            # Extract the individual tag without the full registry/image name
+            # Use shell parameter expansion to remove the "ghcr.io/zeauw/big-data-2025:" prefix
+            # This makes the script more flexible if the REGISTRY/IMAGE_NAME changes
+            CURRENT_BASE_TAG=$(echo "${BASE_TAG_ARRAY[$i]}" | sed "s|^${REGISTRY}/${IMAGE_NAME}:||")
+            CURRENT_AMD64_TAG=$(echo "${AMD64_TAG_ARRAY[$i]}" | sed "s|^${REGISTRY}/${IMAGE_NAME}:||")
+            CURRENT_ARM64_TAG=$(echo "${ARM64_TAG_ARRAY[$i]}" | sed "s|^${REGISTRY}/${IMAGE_NAME}:||")
 
-            echo "Creating manifest for: ${REGISTRY}/${IMAGE_NAME}:${BASE_TAG}"
-            echo "  Including amd64 image: ${REGISTRY}/${IMAGE_NAME}:${AMD64_IMAGE_WITH_ARCH_TAG}"
-            echo "  Including arm64 image: ${REGISTRY}/${IMAGE_NAME}:${ARM64_IMAGE_WITH_ARCH_TAG}"
+            # Construct the full image references correctly
+            BASE_IMAGE_REF="${REGISTRY}/${IMAGE_NAME}:${CURRENT_BASE_TAG}"
+            AMD64_IMAGE_REF="${REGISTRY}/${IMAGE_NAME}:${CURRENT_AMD64_TAG}"
+            ARM64_IMAGE_REF="${REGISTRY}/${IMAGE_NAME}:${CURRENT_ARM64_TAG}"
+
+            echo "Creating manifest for: ${BASE_IMAGE_REF}"
+            echo "  Including amd64 image: ${AMD64_IMAGE_REF}"
+            echo "  Including arm64 image: ${ARM64_IMAGE_REF}"
 
             # Create the manifest list
-            docker manifest create ${REGISTRY}/${IMAGE_NAME}:${BASE_TAG} \
-              ${REGISTRY}/${IMAGE_NAME}:${AMD64_IMAGE_WITH_ARCH_TAG} \
-              ${REGISTRY}/${IMAGE_NAME}:${ARM64_IMAGE_WITH_ARCH_TAG}
+            docker manifest create "${BASE_IMAGE_REF}" \
+              "${AMD64_IMAGE_REF}" \
+              "${ARM64_IMAGE_REF}"
 
             # Push the manifest list to the registry
-            docker manifest push ${REGISTRY}/${IMAGE_NAME}:${BASE_TAG}
+            docker manifest push "${BASE_IMAGE_REF}"
           done
