@@ -16,7 +16,7 @@ RUN apt-get update && apt-get upgrade -y && \
   && \
   rm -rf /var/lib/apt/lists/* && \
   sed -i 's/fpic/fPIC/g' /etc/R/Makeconf && \
-  Rscript -e 'Sys.setenv("LIBARROW_BINARY" = FALSE, "LIBARROW_MINIMAL" = FALSE);install.packages("arrow")'
+  Rscript -e 'Sys.setenv("LIBARROW_BINARY" = FALSE, "ARROW_WITH_ZSTD" = TRUE);install.packages("arrow")'
 RUN pip install --no-cache-dir --root-user-action ignore \
   'numpy==2.3.1' \
   'lightgbm==4.6.0' \
