@@ -14,6 +14,7 @@ RUN apt-get update && apt-get upgrade -y && \
   npm pkg-config protobuf-compiler-grpc python3-dev python3-pip \
   python3-venv rapidjson-dev rsync tzdata zlib1g-dev \
   texlive-base texlive-latex-extra texlive-science texlive-fonts-recommended \
+  cm-super dvipng ghostscript \
   && \
   rm -rf /var/lib/apt/lists/* && \
   sed -i 's/fpic/fPIC/g' /etc/R/Makeconf && \
@@ -26,5 +27,6 @@ RUN pip install --no-cache-dir --root-user-action ignore \
   'rpy2-arrow==0.1.2' \
   'pyarrow==21.0.0' \
   'tqdm==4.67.1' \
-  'matplotlib==3.10.3'
+  'matplotlib==3.10.3' \
+  'scikit-learn==1.7.1'
 ENTRYPOINT [ "/bin/bash", "-c" ]
